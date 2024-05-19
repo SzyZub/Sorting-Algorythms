@@ -42,7 +42,7 @@ class MainClass {
 public:
     MainClass() {
         InitWindow(SCREENW, SCREENH, "SortingAlgorythms");
-        SetTargetFPS(40);
+        SetTargetFPS(500);
         SetMouseCursor(4);
         flag = EMenu;
     }
@@ -57,6 +57,9 @@ public:
                 break;
             case EMode:
                 _mode();
+                break;
+            case EBasic:
+                _basic();
                 break;
             }
             EndDrawing();
@@ -146,6 +149,67 @@ public:
             }
         }
 
+    }
+    void _basic() {
+        static Texture2D temp;
+        if (!IsTextureReady(temp)) {
+            switch (alg) {
+            case ESelection:
+                temp = LoadTexture("Explanations/Selection sort.png");
+                break;
+            case EBubble:
+                temp = LoadTexture("Explanations/Bubble sort.png");
+                break;
+            case EInsertion:
+                temp = LoadTexture("Explanations/Insertion sort.png");
+                break;
+            case EMerge:
+                temp = LoadTexture("Explanations/Merge sort.png");
+                break;
+            case ERadix:
+                temp = LoadTexture("Explanations/Radix sort.png");
+                break;
+            case EQuick:
+                temp = LoadTexture("Explanations/Quick sort.png");
+                break;
+            case ECycle:
+                temp = LoadTexture("Explanations/Cycle sort.png");
+                break;
+            case EShell:
+                temp = LoadTexture("Explanations/Shell sort.png");
+                break;
+            case EBogo:
+                temp = LoadTexture("Explanations/Bogo sort.png");
+                break;
+            case EStalin:
+                temp = LoadTexture("Explanations/Stalin sort.png");
+                break;
+            case ECounting:
+                temp = LoadTexture("Explanations/Counting sort.png");
+                break;
+            case EGnome:
+                temp = LoadTexture("Explanations/Gnome sort.png");
+                break;
+            }
+        }
+        DrawTexture(temp, 0, 0, WHITE);
+        _DrawRectWithText(0, 764, SCREENW / 2, 100, 4, "This algorythm menu");
+        _DrawRectWithText(SCREENW / 2, 764, SCREENW / 2, 100, 4, "Main Menu");
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            StrMousePos mouse = _getMousePos();
+            if (mouse.y >= 764) {
+                UnloadTexture(temp);
+                temp.id = 0;
+                switch (mouse.x / (SCREENW / 2)) {
+                case 0:
+                    flag = EMode;
+                    break;
+                case 1:
+                    flag = EMenu;
+                    break;
+                }
+            }
+        }
     }
 };
 
