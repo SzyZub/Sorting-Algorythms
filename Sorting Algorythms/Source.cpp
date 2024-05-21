@@ -32,36 +32,54 @@ typedef enum EnAlg {
 typedef struct StrMousePos {
     int x, y;
 };
+
 void swap(int& a, int& b) {
     int temp = a;
     a = b;
     b = temp;
 }
+bool _show(int arr[], int x, int y) {
+    BeginDrawing();
+    ClearBackground(BLACK);
+    for (int i = 0; i < 100; i++) {
+        DrawRectangle(30 + 11 * i, 664 - (arr[i] * 5), 10, arr[i] * 5, (x == i ? RED : y == i ? GREEN : WHITE));
+    }
+    DrawText("You can press left mouse button to exit", 200, 764, FONTS, WHITE);
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || WindowShouldClose()) {
+        return true;
+    }
+    EndDrawing();
+    std::chrono::milliseconds dura(12);
+    std::this_thread::sleep_for(dura);
+    return false;
+}
 void selectionSort(int arr[]) {
-    static int min, i ,j;
+    int min, i ,j;
     for (i = 0; i < 99; i++) {
         min = i;
         for (j = i + 1; j < 100; j++) {
-            if (arr[j] < arr[min])
+            if (arr[j] < arr[min]) {
                 min = j;
+                _show(arr, j, min);
+            }                
         }
         if (min != i) {
             swap(arr[min], arr[i]);
-            return;
+            _show(arr, min, i);
         }          
     }
 }
 void bubbleSort(int arr[])
 {
-    static int i, j;
-    static bool swapped;
+    int i, j;
+    bool swapped;
     for (i = 0; i < 99; i++) {
         swapped = false;
         for (j = 0; j < 99 - i; j++) {
             if (arr[j] > arr[j + 1]) {
                 swap(arr[j], arr[j + 1]);
                 swapped = true;
-                return;
+                _show(arr, j, j+1);
             }
         }
         if (swapped == false)
@@ -70,25 +88,25 @@ void bubbleSort(int arr[])
 }
 void insertionSort(int arr[])
 {
-    static int i = 1, key, j;
+    int i = 1, key, j;
     for (i; i < 100;) {
         key = arr[i];
         j = i - 1;
         while (j >= 0 && arr[j] > key) {
             arr[j + 1] = arr[j];
             j = j - 1;
+            _show(arr, j, j + 1);
         }
         arr[j + 1] = key;
         i++;
-        return;
     }
-    i = 1;
 }
 void merge(int arr[], int temp[], int left, int mid, int right) {
     int i = left; 
     int j = mid + 1; 
     int k = left; 
     while (i <= mid && j <= right) {
+        _show(arr, i, j);
         if (arr[i] <= arr[j]) {
             temp[k] = arr[i];
             i++;
@@ -101,22 +119,25 @@ void merge(int arr[], int temp[], int left, int mid, int right) {
     }
     while (i <= mid) {
         temp[k] = arr[i];
+        _show(arr, i, k);
         i++;
         k++;
     }
     while (j <= right) {
         temp[k] = arr[j];
+        _show(arr, j, k);
         j++;
         k++;
     }
     for (int i = left; i <= right; i++) {
         arr[i] = temp[i];
+        _show(arr, i, i);
     }
 }
 void mergeSort(int arr[]) {
-    static int temp[100]; 
-    static int cur = 1;
-    static int left = 0;
+    int temp[100]; 
+    int cur = 1;
+    int left = 0;
     for (; cur <= 99;) {
         for (; left < 99; left += 2 * cur) {
             int mid = std::min(left + cur - 1, 99);
@@ -125,21 +146,19 @@ void mergeSort(int arr[]) {
         }
         left = 0;
         cur = 2 * cur;
-        return;
     }
-    cur = 1;
-    left = 0;
 }
-void CocktailSort(int a[])
+void CocktailSort(int arr[])
 {
-    static bool swapped = true;
-    static int start = 0;
-    static int end = 100 - 1;
+    bool swapped = true;
+    int start = 0;
+    int end = 100 - 1;
     while (swapped) {
         swapped = false;
         for (int i = start; i < end; ++i) {
-            if (a[i] > a[i + 1]) {
-                swap(a[i], a[i + 1]);
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                _show(arr, i, i + 1);
                 swapped = true;
             }
         }
@@ -148,13 +167,13 @@ void CocktailSort(int a[])
         swapped = false;
         --end;
         for (int i = end - 1; i >= start; --i) {
-            if (a[i] > a[i + 1]) {
-                swap(a[i], a[i + 1]);
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                _show(arr, i, i+1);
                 swapped = true;
             }
         }
         ++start;
-        return;
     }
 }
 int partition(int arr[], int low, int high) {
@@ -163,16 +182,17 @@ int partition(int arr[], int low, int high) {
     for (int j = low; j < high; ++j) {
         if (arr[j] <= pivot) {
             ++i;
-            swap(arr[i], arr[j]);
+            swap(arr[i], arr[j]);           
         }
+        _show(arr, i, j);
     }
     swap(arr[i + 1], arr[high]);
     return i + 1;
 }
 void quickSort(int arr[]) {
-    static int stack[99] = { 0, 99 };
-    static int top = 1;
-    static int l = 0, h = 99;
+    int stack[99] = { 0, 99 };
+    int top = 1;
+    int l = 0, h = 99;
     while (top >= 0) {
         h = stack[top--];
         l = stack[top--];
@@ -180,37 +200,35 @@ void quickSort(int arr[]) {
         if (p - 1 > l) {
             stack[++top] = l;
             stack[++top] = p - 1;
+            _show(arr, top, p - 1);
         }
         if (p + 1 < h) {
             stack[++top] = p + 1;
             stack[++top] = h;
+            _show(arr, top, h);
         }
-        return;
     }
-    top = 1;
-    l = 0;
-    h = 99;
-    stack[0] = 0;
-    stack[1] = 99;
 }
 void cycleSort(int arr[])
 {
-    static int cycle_start = 0;
-    static int item;
-    static int pos;
+    int cycle_start = 0;
+    int item;
+    int pos;
     for (; cycle_start <= 98;)
     {
         item = arr[cycle_start];
         pos = cycle_start;
-        for (int i = cycle_start + 1; i < 100; i++)
+        for (int i = cycle_start + 1; i < 100; i++) {
             if (arr[i] < item)
                 pos++;
+        }          
         if (pos == cycle_start) {
             cycle_start++;
             continue;
         }          
-        while (item == arr[pos])
+        while (item == arr[pos]) {
             pos += 1;
+        }          
         if (pos != cycle_start)
         {
             swap(item, arr[pos]);
@@ -221,78 +239,116 @@ void cycleSort(int arr[])
             for (int i = cycle_start + 1; i < 100; i++)
                 if (arr[i] < item) {
                     pos += 1;
+                    _show(arr, i, pos);
                 }                   
             while (item == arr[pos]) {
                 pos += 1;
+                _show(arr, pos, pos);
             }              
             if (item != arr[pos])
             {
                 swap(item, arr[pos]);
             }
+            _show(arr,cycle_start, pos);
         }
         cycle_start++;
-        for (int i = 0; i < 100; i++) {
-            if (arr[i] != i) {
-                return;
-            }
-            else {
-                cycle_start = 0;
-                return;
-            }
-        }
     }
 }
 void shellSort(int arr[]) {
-    static int gap = 100 / 2;
+    int gap = 100 / 2;
     for (; gap > 0; ) {
         for (int i = gap; i < 100; i++) {
             int temp = arr[i];
             int j;
             for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
                 arr[j] = arr[j - gap];
+                _show(arr, j, j-gap);
             }
             arr[j] = temp;
+            _show(arr, j, i);
         }
         gap /= 2;
-        return;
+        _show(arr, -1, -1);
     }
 }
 void stalinSort(int arr[]) {
-    static int last = arr[0];
-    static int index = 1;   
-    static int i = 1;
+    int last = 0;
+    int index = 1;   
+    int i = 1;
     for (; i < 100; ) {
-        if (arr[i] >= last) {
-            last = arr[i]; 
+        if (arr[i] >= arr[last]) {
+            arr[last] = arr[i]; 
+            last = i;
         }
         else {
             arr[i] = -1;
         }
         i++;
-        return;
+        _show(arr, i, last);
     }
-    arr[99] = -1;
-    last = arr[0];
-    index = 1;
-    i = 1;
 }
-void bogoSort(int arr[]) {
-    for (int i = 0; i < 100; i++) {
-        swap(arr[i], arr[std::rand() % 100]);
+void bogoSort(int arr[]) {  
+    while (!_show(arr, -1, -1)) {
+        for (int i = 0; i < 100; i++) {
+            std::chrono::milliseconds dura(3);
+            std::this_thread::sleep_for(dura);
+            swap(arr[i], arr[std::rand() % 100]);
+        }
     }
+}
+void countSort(int arr[])
+{
+    int M = 0;
+    for (int i = 0; i < 100; i++)
+        M = (M > arr[i] ? M : arr[i]);
+    int countArr[100] = { 0 };
+    for (int i = 0; i < 100; i++) {
+        countArr[arr[i]]++;
+        _show(countArr, i, i);
+    }    
+    for (int i = 1; i <= M; i++) {
+        countArr[i] += countArr[i - 1];
+        _show(countArr, i, i - 1);
+    }
+    int outPut[100];
+    for (int i = 99; i >= 0; i--)
+    {
+        outPut[countArr[arr[i]] - 1] = arr[i];
+        countArr[arr[i]]--;
+        _show(outPut, i, i - 1);
+    }
+    for (int i = 0; i < 100; i++) {
+        arr[i] = outPut[i];
+    }
+}
+void gnomeSort(int arr[])
+{
+    int index = 0;
+    while (index < 100) {
+        if (index == 0)
+            index++;
+        if (arr[index] >= arr[index - 1]) {
+            _show(arr, index, index - 1);
+            index++;
+        }         
+        else {
+            swap(arr[index], arr[index - 1]);
+            _show(arr, index, index - 1);
+            index--;
+        }
+    }
+    return;
 }
 void _DrawRectWithText(int x, int y, int w, int h, int b, const char t[]) {
     DrawRectangle(x, y, w, h, WHITE);
     DrawRectangle(x + b, y + b, w - 2*b, h - 2*b, BLACK);
     DrawText(t, (w - MeasureText(t, FONTS))/2 + x, (h - FONTS)/2 + y, FONTS, WHITE);
 }
-
 class Generator {
-    int arr[100];
     void (*func) (int[]);
     EnAlg flag;
 public:
-    int dur;
+    int arr[100];
     Generator(EnAlg f) {
         for (int i = 0; i < 100; i++) {
             arr[i] = i;
@@ -302,78 +358,46 @@ public:
         switch (f) {
         case ESelection:
             func = &selectionSort;
-            dur = 50;
             break;
         case EBubble:
             func = &bubbleSort;
-            dur = 8;
             break;
         case EInsertion:
             func = &insertionSort;
-            dur = 70;
             break;
         case EMerge:
             func = &mergeSort;
-            dur = 500;
             break;
         case ECocktail:
             func = &CocktailSort;
-            dur = 100;
             break;
         case EQuick:
             func = &quickSort;
-            dur = 80;
             break;
         case ECycle: 
             func = &cycleSort;
-            dur = 400;
             break;
         case EShell:
             func = &shellSort;
-            dur = 400;
             break;
         case EBogo:
             func = &bogoSort;
-            dur = 50;
             break;
         case EStalin :
             func = &stalinSort;
-            dur = 50;
             break;
         case ECounting:
-            func = &selectionSort;
+            func = &countSort;
             break;
         case EGnome:
-            func = &bubbleSort;
+            func = &gnomeSort;
             break;
         }
     }
-    bool _sort() {
+    void _sort() {
         func(arr);
-        for (int i = 0; i < 100 && flag != EStalin; i++) {
-            if (arr[i] != i) {
-                return false;
-            }
-        }
-        if (flag != EStalin) {
-            return true;
-        }
-        else if (arr[99] == -1){
-            return true;
-        }
-        return false;
-        
-    }
-    void _show() {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        for (int i = 0; i < 100; i++) {
-            DrawRectangle(30 + 11 * i, 664-(arr[i] *5), 10, arr[i] * 5, WHITE);
-        }    
-        EndDrawing();
-    }
+    }   
 };
-
 class MainClass {
     EnProgFlag flag;
     EnAlg alg;
@@ -400,7 +424,7 @@ public:
                 _basic();
                 break;
             case EDem:
-                if (_dem()) return;
+                _dem();
                 break;
             }
             EndDrawing();
@@ -552,36 +576,14 @@ public:
             }
         }
     }
-    bool _dem() {
+    void _dem() {
         Generator gen(alg);
         srand(time(0));
-        int dur;
-        while (!WindowShouldClose()) {
-            gen._show();
-            dur = 0;
-            DrawText("You can hold left mouse button to exit", 200, 764, FONTS, WHITE);
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                flag = EMenu;
-                return false;
-            }
-            while (dur < gen.dur) {
-                std::chrono::milliseconds dura(5);
-                std::this_thread::sleep_for(dura);
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    flag = EMenu;
-                    return false;
-                }
-                dur += 5;
-            }        
-            if (gen._sort()) {
-                gen._show();
-                std::chrono::milliseconds dura(1000);
-                std::this_thread::sleep_for(dura);
-                flag = EMenu;
-                return false;
-            }
-        }
-        return true;
+        gen._sort();
+        _show(gen.arr, -1, -1);
+        std::chrono::milliseconds dura(1000);
+        std::this_thread::sleep_for(dura);      
+        flag = EMenu;
     }
 };
 
