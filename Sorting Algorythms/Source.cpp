@@ -82,6 +82,7 @@ void insertionSort(int arr[])
         i++;
         return;
     }
+    i = 1;
 }
 void merge(int arr[], int temp[], int left, int mid, int right) {
     int i = left; 
@@ -192,6 +193,94 @@ void quickSort(int arr[]) {
     stack[0] = 0;
     stack[1] = 99;
 }
+void cycleSort(int arr[])
+{
+    static int cycle_start = 0;
+    static int item;
+    static int pos;
+    for (; cycle_start <= 98;)
+    {
+        item = arr[cycle_start];
+        pos = cycle_start;
+        for (int i = cycle_start + 1; i < 100; i++)
+            if (arr[i] < item)
+                pos++;
+        if (pos == cycle_start) {
+            cycle_start++;
+            continue;
+        }          
+        while (item == arr[pos])
+            pos += 1;
+        if (pos != cycle_start)
+        {
+            swap(item, arr[pos]);
+        }
+        while (pos != cycle_start)
+        {
+            pos = cycle_start;
+            for (int i = cycle_start + 1; i < 100; i++)
+                if (arr[i] < item) {
+                    pos += 1;
+                }                   
+            while (item == arr[pos]) {
+                pos += 1;
+            }              
+            if (item != arr[pos])
+            {
+                swap(item, arr[pos]);
+            }
+        }
+        cycle_start++;
+        for (int i = 0; i < 100; i++) {
+            if (arr[i] != i) {
+                return;
+            }
+            else {
+                cycle_start = 0;
+                return;
+            }
+        }
+    }
+}
+void shellSort(int arr[]) {
+    static int gap = 100 / 2;
+    for (; gap > 0; ) {
+        for (int i = gap; i < 100; i++) {
+            int temp = arr[i];
+            int j;
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            arr[j] = temp;
+        }
+        gap /= 2;
+        return;
+    }
+}
+void stalinSort(int arr[]) {
+    static int last = arr[0];
+    static int index = 1;   
+    static int i = 1;
+    for (; i < 100; ) {
+        if (arr[i] >= last) {
+            last = arr[i]; 
+        }
+        else {
+            arr[i] = -1;
+        }
+        i++;
+        return;
+    }
+    arr[99] = -1;
+    last = arr[0];
+    index = 1;
+    i = 1;
+}
+void bogoSort(int arr[]) {
+    for (int i = 0; i < 100; i++) {
+        swap(arr[i], arr[std::rand() % 100]);
+    }
+}
 void _DrawRectWithText(int x, int y, int w, int h, int b, const char t[]) {
     DrawRectangle(x, y, w, h, WHITE);
     DrawRectangle(x + b, y + b, w - 2*b, h - 2*b, BLACK);
@@ -236,16 +325,20 @@ public:
             dur = 80;
             break;
         case ECycle: 
-            func = &selectionSort;
+            func = &cycleSort;
+            dur = 400;
             break;
         case EShell:
-            func = &bubbleSort;
+            func = &shellSort;
+            dur = 400;
             break;
         case EBogo:
-            func = &selectionSort;
+            func = &bogoSort;
+            dur = 50;
             break;
         case EStalin :
-            func = &bubbleSort;
+            func = &stalinSort;
+            dur = 50;
             break;
         case ECounting:
             func = &selectionSort;
@@ -257,12 +350,19 @@ public:
     }
     bool _sort() {
         func(arr);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100 && flag != EStalin; i++) {
             if (arr[i] != i) {
                 return false;
             }
         }
-        return true;
+        if (flag != EStalin) {
+            return true;
+        }
+        else if (arr[99] == -1){
+            return true;
+        }
+        return false;
+        
     }
     void _show() {
         BeginDrawing();
@@ -454,10 +554,25 @@ public:
     }
     bool _dem() {
         Generator gen(alg);
+        srand(time(0));
+        int dur;
         while (!WindowShouldClose()) {
             gen._show();
-            std::chrono::milliseconds dura(gen.dur);
-            std::this_thread::sleep_for(dura);
+            dur = 0;
+            DrawText("You can hold left mouse button to exit", 200, 764, FONTS, WHITE);
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                flag = EMenu;
+                return false;
+            }
+            while (dur < gen.dur) {
+                std::chrono::milliseconds dura(5);
+                std::this_thread::sleep_for(dura);
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    flag = EMenu;
+                    return false;
+                }
+                dur += 5;
+            }        
             if (gen._sort()) {
                 gen._show();
                 std::chrono::milliseconds dura(1000);
